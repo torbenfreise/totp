@@ -1,22 +1,20 @@
 <script lang="ts">
 	import { generate, type HashAlgorithm } from 'otplib';
-	import type { PageProps } from './$types';
 	import { type Digits } from '@otplib/core';
 	import { onDestroy, onMount } from 'svelte';
-	import { Progressbar } from 'flowbite-svelte';
+	import { Input, Progressbar, Select } from 'flowbite-svelte';
 	import { Clipboard } from 'flowbite-svelte';
 	import { CheckOutline, ClipboardCleanSolid } from 'flowbite-svelte-icons';
 	import { goto } from '$app/navigation';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { resolve } from '$app/paths';
 
 	let secret = $state('ORXXEYTFNYXGM4TFNFZWKQDHNVQWS3BOMNXW2SCFJZHEORKDJBAUYTCFJZDUKMBQGQ======');
 
 	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
+		const params = new SvelteURLSearchParams(window.location.search);
 		const fromUrl = params.get('secret');
-
-		if (fromUrl) {
-			secret = fromUrl;
-		}
+		if (fromUrl) secret = fromUrl;
 	});
 
 	let algorithm = $state<HashAlgorithm>('sha1');
@@ -52,12 +50,12 @@
 	const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 	function updateUrl(value: string) {
-		const params = new URLSearchParams(window.location.search);
+		const searchParams = new SvelteURLSearchParams();
+		const url = resolve('/');
+		if (value) searchParams.set('secret', value);
 
-		if (value) params.set('secret', value);
-		else params.delete('secret');
-
-		goto(`?${params.toString()}`, {
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
+		goto(`${url}?${searchParams.toString()}`, {
 			replaceState: true,
 			noScroll: true,
 			keepFocus: true
@@ -89,6 +87,7 @@
 			</div>
 
 			<!-- Right: generator card -->
+			<!-- Right: generator card -->
 			<div class="space-y-6 rounded-xl bg-white p-6 shadow">
 				<div class="w-full max-w-xl space-y-6 rounded-xl bg-white p-6 shadow">
 					<h1 class="text-center text-2xl font-semibold text-gray-800">TOTP Generator</h1>
@@ -96,50 +95,51 @@
 					<!-- Algorithm -->
 					<div class="space-y-1">
 						<label for="Algorithm" class="text-sm font-medium text-gray-600">Hash algorithm</label>
-						<select bind:value={algorithm} class="w-full" id="Algorithm">
+						<Select id="Algorithm" bind:value={algorithm} class="w-full">
 							<option value="sha1">SHA-1</option>
 							<option value="sha256">SHA-256</option>
 							<option value="sha512">SHA-512</option>
-						</select>
+						</Select>
 					</div>
 
 					<!-- Period -->
 					<div class="space-y-1">
-						<label for="Period" class="text-sm font-medium text-gray-600"> Period (seconds) </label>
-						<input
+						<label for="Period" class="text-sm font-medium text-gray-600">Period (seconds)</label>
+						<Input
+							id="Period"
 							type="number"
 							bind:value={period}
 							min={minPeriod}
 							max={maxPeriod}
-							class="w-full"
-							id="Period"
 							oninput={() => (period = clamp(period, minPeriod, maxPeriod) as Digits)}
+							class="w-full"
 						/>
 					</div>
 
 					<!-- Digits -->
 					<div class="space-y-1">
-						<label for="Digits" class="text-sm font-medium text-gray-600"> Code length </label>
-						<input
+						<label for="Digits" class="text-sm font-medium text-gray-600">Code length</label>
+						<Input
+							id="Digits"
 							type="number"
 							bind:value={digits}
 							min={minDigits}
 							max={maxDigits}
-							class="w-full"
-							id="Digits"
 							oninput={() => (digits = clamp(digits, minDigits, maxDigits) as Digits)}
+							class="w-full"
 						/>
 					</div>
 
 					<!-- Secret -->
 					<div class="space-y-1">
-						<label for="secret" class="text-sm font-medium text-gray-600">Base32 Secret </label>
-
-						<input
+						<label for="secret" class="text-sm font-medium text-gray-600">Base32 Secret</label>
+						<Input
 							id="secret"
-							class="w-full"
+							type="text"
 							bind:value={secret}
 							oninput={() => updateUrl(secret)}
+							onchange={() => updateUrl(secret)}
+							class="w-full"
 						/>
 					</div>
 
