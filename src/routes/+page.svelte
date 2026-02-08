@@ -83,7 +83,7 @@
 
 				<p>You can choose the hash algorithm, token length, and time step.</p>
 
-				<p>Secrets can be provided as ASCII or Base32.</p>
+				<p>Secrets must be provided in Base-32 encoding.</p>
 			</div>
 
 			<!-- Right: generator card -->
