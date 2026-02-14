@@ -7,7 +7,7 @@
 
 <svelte:head
 	><link rel="icon" href={favicon} />
-	<title>TOTP Generator (RFC 6238) – Generate 2FA Authentication Codes</title>
+	<title>TOTP Generator</title>
 	<link rel="canonical" href="https://totp.torbenfreise.dev" />
 	<meta
 		name="description"
